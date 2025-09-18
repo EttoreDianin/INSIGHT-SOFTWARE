@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Insight</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* Pequeno estilo inline para demo se styles.css não existir */
+  :root { color-scheme: dark; }
+  body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#061323;color:#dbeefb;margin:0;padding:18px;}
+  .container{max-width:1100px;margin:0 auto;}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:48px;height:48px;object-fit:contain}
+  .title{font-weight:800;font-size:1.1rem}
+  .subtitle{font-size:0.85rem;opacity:0.8}
+  .top-actions button{margin-left:8px}
+  .grid{display:grid;grid-template-columns:300px 1fr;gap:12px}
+  .card{background:#081126;padding:12px;border-radius:10px}
+  .sidebar .nav button{display:block;width:100%;text-align:left;padding:8px;margin:6px 0;border-radius:6px;background:transparent;border:1px solid transparent}
+  .sidebar .nav button.active{background:rgba(255,255,255,0.03)}
+  .services .service{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);margin-bottom:8px}
+  .kv{font-size:0.9rem;opacity:0.8}
+  .btn{background:#0ea5a6;border:none;padding:8px 10px;border-radius:8px;color:#061323;cursor:pointer}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 8px;border-radius:8px;color:inherit;cursor:pointer}
+  .input{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);background:transparent;color:inherit}
+  .small{font-size:0.85rem;opacity:0.8}
+  .empty{opacity:0.7;padding:18px;border:1px dashed rgba(255,255,255,0.03);border-radius:8px}
+  .footer{margin-top:18px;opacity:0.6}
+  .chat-area{display:flex;flex-direction:column;height:300px}
+  .chat-messages{flex:1;overflow:auto;padding:8px}
+  .chat-input{display:flex;gap:8px}
+  .msg{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
+  .msg.me{background:linear-gradient(90deg, rgba(14,165,166,0.12), rgba(14,165,166,0.06))}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <img src="images/logo.png" alt="Insight" class="logo" id="siteLogo">
+        <div>
+          <div class="title">Insight</div>
+          <div class="subtitle">Conectando empresas e freelancers com transparência</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="exportBtn">Exportar dados</button>
+        <button class="ghost" id="resetBtn">Deletar os dados</button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <aside class="sidebar card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700" id="userAvatar">G</div>
+          <div>
+            <div id="userName">Guest</div>
+            <div class="small" id="userType">Visitante</div>
+          </div>
+        </div>
+
+        <nav class="nav" id="mainNav">
+          <button data-route="about">Sobre</button>
+          <button data-route="home">Home / Serviços</button>
+          <button data-route="search">Buscar Serviços</button>
+          <button data-route="publish">Publicar Serviço</button>
+          <button data-route="proposals">Propostas</button>
+          <button data-route="contracts">Contratos</button>
+          <button data-route="chat">Suporte</button>
+          <button data-route="profile">Meu Perfil</button>
+          <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:10px 0">
+          <button id="navLogin">Entrar / Cadastrar</button>
+        </nav>
+
+      </aside>
+
+      <section id="view" class="card">
+        <!-- Conteúdo dinâmico -->
+      </section>
+    </main>
+
+    <footer class="footer">Site Insight Oficial</footer>
+  </div>
+
+<script>
+/* ---------- DADOS INICIAIS ---------- */
+const STORAGE_KEY = 'insight_v2';
+let DATA = null;
+
+const DEMO = {
+  users: [
+    { id: 1, name: 'Empresa Demo', email: 'empresa@demo.com', type: 'company', cnpj: '00000000000100', password: '123456', rating: null },
+    { id: 2, name: 'Freelancer Demo', email: 'freela@demo.com', type: 'freelancer', cpf: '00000000000', password: '123456', rating: null }
+  ],
+  services: [
+    { id: 1, title: 'Desenvolvimento de Landing Page', desc: 'Landing responsiva com formulário e SEO', category: 'Desenvolvimento', budget: 800, duration: '7 dias', ownerId: 1, status: 'open' },
+    { id: 2, title: 'Criação de Logo', desc: 'Design de marca e manual básico', category: 'Design', budget: 350, duration: '5 dias', ownerId: 1, status: 'open' }
+  ],
+  proposals: [],
+  contracts: [],
+  messages: []
+};
+
+function loadData(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw){
+    DATA = JSON.parse(JSON.stringify(DEMO));
+    saveData();
+    return;
+  }
+  try {
+    DATA = JSON.parse(raw);
+    // ensure structure (if user removed some keys)
+    DATA.users = DATA.users || [];
+    DATA.services = DATA.services || [];
+    DATA.proposals = DATA.proposals || [];
+    DATA.contracts = DATA.contracts || [];
+    DATA.messages = DATA.messages || [];
+  } catch(e){
+    DATA = JSON.parse(JSON.stringify(DEMO));
+    saveData();
+  }
+}
+function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
+
+/* ---------- UTILITÁRIOS ---------- */
+function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function currencyBR(v){
+  const n = Number(v);
+  if(Number.isNaN(n)) return 'R$ 0,00';
+  return 'R$ ' + n.toFixed(2).replace('.',',');
+}
+function byId(id){ return document.getElementById(id); }
+function isCPF(v){
+  if(!v) return false;
+  const dig = v.replace(/[^\d]/g,'');
+  return /^\d{11}$/.test(dig);
+}
+function isCNPJ(v){
+  if(!v) return false;
+  const dig = v.replace(/[^\d]/g,'');
+  return /^\d{14}$/.test(dig);
+}
+
+/* ---------- ESTADO DO APP ---------- */
+let state = { route: 'about', user: null };
+
+/* ---------- RENDER / ROUTER ---------- */
+const view = byId('view');
+function setRoute(r){
+  state.route = r;
+  // atualiza classe active no menu
+  document.querySelectorAll('#mainNav button[data-route]').forEach(b=> b.classList.toggle('active', b.dataset.route===r));
+  render();
+}
+function setUser(user){
+  state.user = user;
+  const nameEl = byId('userName');
+  const typeEl = byId('userType');
+  const avatarEl = byId('userAvatar');
+  if(user){
+    if(nameEl) nameEl.textContent = user.name || 'Usuário';
+    if(typeEl) typeEl.textContent = user.type === 'company' ? 'Contratante (Empresa)' : 'Freelancer';
+    if(avatarEl) avatarEl.textContent = (user.name ? user.name.charAt(0).toUpperCase() : 'U');
+    try { sessionStorage.setItem('insight_user', JSON.stringify(user)); } catch(e){}
+  } else {
+    if(nameEl) nameEl.textContent = 'Guest';
+    if(typeEl) typeEl.textContent = 'Visitante';
+    if(avatarEl) avatarEl.textContent = 'G';
+    sessionStorage.removeItem && sessionStorage.removeItem('insight_user');
+  }
+}
+
+/* Main render */
+function render(){
+  loadData();
+  setUser(state.user);
+  switch(state.route){
+    case 'about': return renderAbout();
+    case 'home': return renderHome();
+    case 'search': return renderSearch();
+    case 'publish': return renderPublish();
+    case 'proposals': return renderProposals();
+    case 'contracts': return renderContracts();
+    case 'chat': return renderChat();
+    case 'profile': return renderProfile();
+    case 'login': return renderLogin();
+    default: return renderAbout();
+  }
+}
+
+/* ---------- VIEWS ---------- */
+function renderAbout(){
+  view.innerHTML = `
+    <h2>Sobre o Insight</h2>
+    <div class="card">
+      <p class="small">Conectar empresas e freelancers, com publicação de serviços, propostas, contratos simulados e avaliações mútuas.</p>
+      <p class="small" style="margin-top:8px">Use o menu à esquerda para navegar. O botão <strong>Deletar os dados</strong> restaura os dados para o estado inicial.</p>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn" onclick="setRoute('home')">Ir para serviços</button>
+        <button class="ghost" onclick="setRoute('login')">Entrar / Cadastrar</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderHome(){
+  const services = DATA.services.filter(s => s.status === 'open' || s.status === 'inprogress');
+  view.innerHTML = `
+    <h2>Serviços em destaque</h2>
+    <div class="services" id="svcList"></div>
+  `;
+  const container = byId('svcList');
+  container.innerHTML = services.map(s => `
+    <div class="service">
+      <strong>${escapeHtml(s.title)}</strong>
+      <div class="kv">${escapeHtml(s.category)} • ${escapeHtml(s.duration)}</div>
+      <p class="small">${escapeHtml(s.desc)}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <div style="font-weight:700">${currencyBR(s.budget)}</div>
+        <div>
+          <button class="ghost" onclick="viewService(${s.id})">Ver</button>
+          <button class="btn" onclick="applyToService(${s.id})">Enviar Proposta</button>
+        </div>
+      </div>
+    </div>
+  `).join('') || '<div class="empty">Nenhum serviço disponível.</div>';
+}
+
+function renderSearch(){
+  view.innerHTML = `
+    <h2>Buscar Serviços</h2>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input id="q" class="input" placeholder="Pesquisar por título ou categoria">
+      <select id="cat" class="input"><option value="">Todas</option><option>Desenvolvimento</option><option>Design</option><option>Marketing</option><option>Eventos</option></select>
+      <button class="btn" id="btnSearch">Buscar</button>
+    </div>
+    <div id="results" class="services" style="margin-top:12px"></div>
+  `;
+  const btn = byId('btnSearch');
+  if(btn) btn.addEventListener('click', doSearch);
+  doSearch();
+}
+function doSearch(){
+  const qEl = byId('q');
+  const catEl = byId('cat');
+  const q = qEl ? qEl.value.toLowerCase() : '';
+  const cat = catEl ? catEl.value : '';
+  const results = DATA.services.filter(s => ((s.title + s.desc + s.category).toLowerCase().includes(q)) && (!cat || s.category === cat));
+  const resultsEl = byId('results');
+  if(!resultsEl) return;
+  resultsEl.innerHTML = results.map(s => `
+    <div class="service">
+      <strong>${escapeHtml(s.title)}</strong>
+      <div class="kv">${escapeHtml(s.category)} • ${escapeHtml(s.duration)}</div>
+      <p class="small">${escapeHtml(s.desc)}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <div style="font-weight:700">${currencyBR(s.budget)}</div>
+        <div><button class="ghost" onclick="viewService(${s.id})">Ver</button></div>
+      </div>
+    </div>
+  `).join('') || '<div class="empty">Nenhum resultado.</div>';
+}
+
+function renderPublish(){
+  if(!state.user) return view.innerHTML = `<div class="empty">Você precisa estar logado para publicar um serviço.<br><button class="btn" onclick="setRoute('login')">Entrar / Cadastrar</button></div>`;
+  view.innerHTML = `
+    <h2>Publicar Serviço</h2>
+    <div class="card">
+      <input id="pTitle" class="input" placeholder="Título do serviço">
+      <div style="margin-top:8px" class="form-row"><input id="pCategory" class="input" placeholder="Categoria"><input id="pBudget" class="input" placeholder="Orçamento (R$)"></div>
+      <div style="margin-top:8px"><textarea id="pDesc" class="input" rows="4" placeholder="Descrição detalhada"></textarea></div>
+      <div style="margin-top:8px" class="form-row"><input id="pDuration" class="input" placeholder="Prazo (ex: 7 dias)"><div></div></div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn" id="btnPublish">Publicar</button>
+        <button class="ghost" onclick="setRoute('home')">Cancelar</button>
+      </div>
+    </div>
+  `;
+  const btn = byId('btnPublish');
+  if(btn) btn.addEventListener('click', ()=>{
+    const title = (byId('pTitle')?.value || '').trim();
+    const desc = (byId('pDesc')?.value || '').trim();
+    const category = (byId('pCategory')?.value || '').trim() || 'Geral';
+    const budget = Number(byId('pBudget')?.value) || 0;
+    const duration = (byId('pDuration')?.value || '').trim() || '';
+    if(!title || !desc){ alert('Preencha título e descrição'); return; }
+    const id = DATA.services.length ? Math.max(...DATA.services.map(s=>s.id)) + 1 : 1;
+    DATA.services.push({ id, title, desc, category, budget, duration, ownerId: state.user.id, status: 'open' });
+    saveData();
+    alert('Serviço publicado!');
+    setRoute('home');
+  });
+}
+
+function renderProposals(){
+  if(!state.user) return view.innerHTML = `<div class="empty">Faça login para ver propostas.</div>`;
+  const sent = DATA.proposals.filter(p => p.fromUserId === state.user.id);
+  const received = DATA.proposals.filter(p => {
+    const svc = DATA.services.find(s => s.id === p.serviceId);
+    return svc && svc.ownerId === state.user.id;
+  });
+  view.innerHTML = `
+    <h2>Minhas Propostas</h2>
+    <div class="card"><h4>Propostas enviadas</h4><div id="sentList"></div></div>
+    <div style="margin-top:12px" class="card"><h4>Propostas recebidas</h4><div id="recvList"></div></div>
+  `;
+  const sentList = byId('sentList');
+  if(sentList){
+    sentList.innerHTML = sent.map(p => {
+      const svc = DATA.services.find(s=>s.id===p.serviceId) || {};
+      return `<div class="service"><strong>${escapeHtml(svc.title||'--')}</strong><div class="kv">Valor: ${currencyBR(p.value)} • Prazo: ${escapeHtml(p.timeframe)}</div><p class="small">${escapeHtml(p.message)}</p><div class="small">Status: ${escapeHtml(p.status)}</div></div>`;
+    }).join('') || '<div class="empty">Nenhuma proposta enviada.</div>';
+  }
+  const recvList = byId('recvList');
+  if(recvList){
+    recvList.innerHTML = received.map(p => {
+      const from = DATA.users.find(u=>u.id===p.fromUserId) || {};
+      const svc = DATA.services.find(s=>s.id===p.serviceId) || {};
+      return `<div class="service"><strong>${escapeHtml(svc.title)}</strong><div class="kv">De: ${escapeHtml(from.name || '---')} • Valor: ${currencyBR(p.value)} • Prazo: ${escapeHtml(p.timeframe)}</div><p class="small">${escapeHtml(p.message)}</p>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          ${p.status === 'Pendente' ? `<button class="btn" onclick="acceptProposal('${p.id}')">Aceitar</button><button class="ghost" onclick="rejectProposal('${p.id}')">Rejeitar</button>` : `<div class="small">Status: ${escapeHtml(p.status)}</div>`}
+        </div></div>`;
+    }).join('') || '<div class="empty">Nenhuma proposta recebida.</div>';
+  }
+}
+
+function renderContracts(){
+  if(!state.user) return view.innerHTML = `<div class="empty">Faça login para ver contratos.</div>`;
+  const myContracts = DATA.contracts.filter(c => c.contractorId === state.user.id || c.freelancerId === state.user.id);
+  view.innerHTML = `<h2>Contratos</h2><div id="contractsList"></div>`;
+  const contractsList = byId('contractsList');
+  if(!contractsList) return;
+  contractsList.innerHTML = myContracts.map(c => {
+    const svc = DATA.services.find(s=>s.id===c.serviceId) || {};
+    const freelancer = DATA.users.find(u=>u.id===c.freelancerId) || {};
+    const contractor = DATA.users.find(u=>u.id===c.contractorId) || {};
+    return `<div class="service"><strong>${escapeHtml(svc.title)}</strong><div class="kv">Contrato: ${escapeHtml(c.id)} • Status: ${escapeHtml(c.status)}</div>
+      <p class="small">Contratante: ${escapeHtml(contractor.name || '--')} • Freelancer: ${escapeHtml(freelancer.name || '--')}</p>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        ${c.status === 'Ativo' ? `<button class="btn" onclick="finalizeContract('${c.id}')">Finalizar Contrato</button>` : ''}
+        ${c.status === 'Finalizado' ? renderRatingsSummary(c) : ''}
+      </div></div>`;
+  }).join('') || '<div class="empty">Nenhum contrato.</div>';
+}
+
+function renderRatingsSummary(c){
+  const r = c.ratings || {};
+  return `<div class="small">Avaliações — Contratante: ${escapeHtml(r.contractor || '-')} • Freelancer: ${escapeHtml(r.freelancer || '-')}</div>`;
+}
+
+function renderChat(){
+  if(!state.user) return view.innerHTML = `<div class="empty">Faça login para usar o chat.</div>`;
+  view.innerHTML = `
+    <h2>Suporte</h2>
+    <div class="chat-area card">
+      <div id="msgArea" class="chat-messages"></div>
+      <div class="chat-input" style="margin-top:8px"><input id="chatText" class="input" placeholder="Escrever mensagem..."><button class="btn" id="sendMsg">Enviar</button></div>
+    </div>
+  `;
+  renderMessages();
+  const sendBtn = byId('sendMsg');
+  if(sendBtn) sendBtn.addEventListener('click', ()=> {
+    const txt = (byId('chatText')?.value || '').trim();
+    if(!txt) return;
+    DATA.messages.push({ id: uid('m'), from: state.user.id, text: txt, time: Date.now() });
+    saveData(); if(byId('chatText')) byId('chatText').value='';
+    renderMessages();
+  });
+}
+
+function renderMessages(){
+  const area = byId('msgArea');
+  if(!area) return;
+  if(!DATA.messages.length){ area.innerHTML = '<div class="empty">Sem mensagens</div>'; return; }
+  area.innerHTML = DATA.messages.map(m => {
+    const me = state.user && m.from === state.user.id;
+    const user = DATA.users.find(u=>u.id===m.from) || {};
+    return `<div class="msg ${me? 'me':'them'}"><div style="font-weight:600">${escapeHtml(user.name||'---')}</div><div style="margin-top:6px">${escapeHtml(m.text)}</div><div style="font-size:0.75rem;opacity:0.7;margin-top:6px">${new Date(m.time).toLocaleString()}</div></div>`;
+  }).join('');
+  area.scrollTop = area.scrollHeight;
+}
+
+function renderProfile(){
+  if(!state.user) return view.innerHTML = `<div class="empty">Faça login para ver perfil.</div>`;
+  const myServices = DATA.services.filter(s => s.ownerId === state.user.id);
+  const myProposals = DATA.proposals.filter(p => p.fromUserId === state.user.id);
+  view.innerHTML = `
+    <h2>Meu Perfil</h2>
+    <div class="card">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="width:84px;height:84px;border-radius:12px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem">${escapeHtml((state.user.name||'U').charAt(0).toUpperCase())}</div>
+        <div>
+          <div style="font-weight:700">${escapeHtml(state.user.name)}</div>
+          <div class="small">${escapeHtml(state.user.email)}</div>
+          <div class="small">Tipo: ${escapeHtml(state.user.type)}</div>
+        </div>
+      </div>
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
+      <h4>Meus Serviços</h4>
+      <div id="mySvc"></div>
+      <h4 style="margin-top:12px">Minhas Propostas</h4>
+      <div id="myProp"></div>
+    </div>
+  `;
+  byId('mySvc').innerHTML = myServices.map(s => `<div class="service"><strong>${escapeHtml(s.title)}</strong><div class="kv">${escapeHtml(s.category)} • ${escapeHtml(s.duration)}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="ghost" onclick="editService(${s.id})">Editar</button><button class="ghost" onclick="removeService(${s.id})">Excluir</button></div></div>`).join('') || '<div class="empty">Nenhum serviço publicado.</div>';
+  byId('myProp').innerHTML = myProposals.map(p => {
+    const svc = DATA.services.find(s=>s.id===p.serviceId) || {};
+    return `<div class="service"><strong>${escapeHtml(svc.title||'--')}</strong><div class="kv">Valor: ${currencyBR(p.value)} • Prazo: ${escapeHtml(p.timeframe)}</div><div class="small">Status: ${escapeHtml(p.status)}</div></div>`;
+  }).join('') || '<div class="empty">Nenhuma proposta.</div>';
+}
+
+/* ---------- VIEW HELPERS / ACTIONS ---------- */
+function viewService(id){
+  const s = DATA.services.find(x=>x.id===id);
+  if(!s) return alert('Serviço não encontrado');
+  const owner = DATA.users.find(u=>u.id===s.ownerId) || {};
+  const modal = document.createElement('div'); modal.style.position='fixed'; modal.style.inset=0; modal.style.background='rgba(0,0,0,0.6)'; modal.style.display='flex'; modal.style.alignItems='center'; modal.style.justifyContent='center'; modal.style.zIndex=9999;
+  modal.innerHTML = `<div style="background:#081126;padding:18px;border-radius:10px;max-width:720px;width:100%;color:#e6eef6">
+    <h3>${escapeHtml(s.title)}</h3>
+    <div class="kv">${escapeHtml(s.category)} • ${escapeHtml(s.duration)} • ${currencyBR(s.budget)}</div>
+    <p class="small" style="margin-top:8px">${escapeHtml(s.desc)}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button class="ghost" id="closeModal">Fechar</button>
+      <button class="btn" id="applyModal">Enviar Proposta</button>
+    </div></div>`;
+  document.body.appendChild(modal);
+  byId('closeModal').addEventListener('click', ()=> modal.remove());
+  byId('applyModal').addEventListener('click', ()=> { modal.remove(); applyToService(id); });
+}
+
+function applyToService(serviceId){
+  if(!state.user){ if(confirm('Você precisa estar logado. Entrar agora?')) setRoute('login'); return; }
+  const value = prompt('Valor (R$):', '0'); 
+  if(value === null) return;
+  const timeframe = prompt('Prazo (ex: 7 dias):', '7 dias');
+  if(timeframe === null) return;
+  const message = prompt('Mensagem para o contratante:', 'Tenho experiência e posso entregar no prazo.');
+  if(message === null) return;
+  const id = uid('prop');
+  const service = DATA.services.find(s=>s.id===serviceId);
+  DATA.proposals.push({ id, serviceId, fromUserId: state.user.id, toUserId: service.ownerId, value: Number(value), timeframe: timeframe, message, status: 'Pendente', createdAt: Date.now() });
+  saveData();
+  alert('Proposta enviada!');
+  setRoute('proposals');
+}
+
+function acceptProposal(propId){
+  const p = DATA.proposals.find(x=>String(x.id)===String(propId));
+  if(!p) return alert('Proposta não encontrada');
+  const svc = DATA.services.find(s=>s.id===p.serviceId);
+  if(!svc) return alert('Serviço inexistente');
+  if(svc.ownerId !== state.user.id) return alert('Apenas o dono do serviço pode aceitar propostas.');
+  // mark proposal accepted, others rejected
+  DATA.proposals.forEach(pr => { if(pr.serviceId === p.serviceId) pr.status = (String(pr.id) === String(propId) ? 'Finalizado' : 'Rejeitado'); });
+  // create contract
+  const cid = uid('contract');
+  const contract = { id: cid, serviceId: p.serviceId, proposalId: p.id, contractorId: svc.ownerId, freelancerId: p.fromUserId, status: 'Ativo', createdAt: Date.now(), ratings: {} };
+  DATA.contracts.push(contract);
+  svc.status = 'Sem progresso';
+  saveData();
+  alert('Proposta aceita e contrato criado.');
+  setRoute('contracts');
+}
+
+function rejectProposal(propId){
+  const p = DATA.proposals.find(x=>String(x.id)===String(propId));
+  if(!p) return alert('Proposta não encontrada');
+  p.status = 'Rejeitado';
+  saveData();
+  renderProposals();
+}
+
+function finalizeContract(contractId){
+  const c = DATA.contracts.find(x=>String(x.id)===String(contractId));
+  if(!c) return alert('Contrato não encontrado');
+  if(!confirm('Confirmar finalização do contrato? Isso abrirá a avaliação mútua.')) return;
+  c.status = 'Finalizado';
+  c.finalizedAt = Date.now();
+  c.ratings = c.ratings || {};
+  if(state.user.id === c.contractorId){
+    const r = Number(prompt('Avalie o freelancer (1-5):', '5'));
+    c.ratings.freelancer = (r>=1 && r<=5) ? r : null;
+  } else if(state.user.id === c.freelancerId){
+    const r = Number(prompt('Avalie o contratante (1-5):', '5'));
+    c.ratings.contractor = (r>=1 && r<=5) ? r : null;
+  } else {
+    // se outra pessoa finalizar, não atribui avaliações
+  }
+  const svc = DATA.services.find(s=>s.id===c.serviceId);
+  if(svc) svc.status = 'Fechado';
+  saveData();
+  alert('Contrato finalizado e avaliação registrada.');
+  setRoute('contracts');
+}
+
+/* Service editing */
+function editService(id){
+  const s = DATA.services.find(x=>x.id===id);
+  if(!s) return alert('Serviço não encontrado');
+  const title = prompt('Título', s.title);
+  if(title === null) return;
+  s.title = title;
+  saveData();
+  renderProfile();
+}
+function removeService(id){
+  if(!confirm('Excluir serviço?')) return;
+  DATA.services = DATA.services.filter(s=>s.id!==id);
+  DATA.proposals = DATA.proposals.filter(p=>p.serviceId!==id);
+  saveData();
+  renderProfile();
+}
+
+/* ---------- AUTH ---------- */
+function renderLogin(){
+  view.innerHTML = `
+    <h2>Entrar / Cadastrar</h2>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px" class="card">
+        <h3>Entrar</h3>
+        <input id="loginEmail" class="input" placeholder="E-mail">
+        <input id="loginPass" class="input" placeholder="Senha" type="password" style="margin-top:8px">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="btnLogin">Entrar</button>
+          <button class="ghost" onclick="setRoute('about')">Cancelar</button>
+        </div>
+      </div>
+      <div style="flex:1;min-width:260px" class="card">
+        <h3>Cadastrar</h3>
+        <input id="regName" class="input" placeholder="Nome completo">
+        <input id="regEmail" class="input" placeholder="E-mail" style="margin-top:8px">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="regDoc" class="input" placeholder="CPF (11 digs) ou CNPJ (14 digs)">
+          <select id="regType" class="input"><option value="freelancer">Freelancer (CPF)</option><option value="company">Empresa (CNPJ)</option></select>
+        </div>
+        <input id="regPass" class="input" placeholder="Senha" type="password" style="margin-top:8px">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="btnRegister">Cadastrar</button>
+        </div>
+      </div>
+    </div>
+  `;
+  const btnLogin = byId('btnLogin');
+  const btnRegister = byId('btnRegister');
+  if(btnLogin) btnLogin.addEventListener('click', doLogin);
+  if(btnRegister) btnRegister.addEventListener('click', doRegister);
+}
+function doLogin(){
+  const email = (byId('loginEmail')?.value || '').trim();
+  const pass = (byId('loginPass')?.value || '');
+  const user = DATA.users.find(u => u.email === email && u.password === pass);
+  if(!user) return alert('Credenciais inválidas');
+  setUser(user); setRoute('home');
+}
+function doRegister(){
+  const name = (byId('regName')?.value || '').trim();
+  const email = (byId('regEmail')?.value || '').trim();
+  const docRaw = (byId('regDoc')?.value || '').trim();
+  const doc = docRaw.replace(/\D/g,'');
+  const type = byId('regType')?.value;
+  const pass = (byId('regPass')?.value || '');
+  if(!name || !email || !doc || !pass) return alert('Preencha todos os campos');
+  if(DATA.users.find(u => u.email === email)) return alert('E-mail já cadastrado');
+  if(type === 'freelancer' && !isCPF(doc)) return alert('CPF inválido (use 11 dígitos numéricos)');
+  if(type === 'company' && !isCNPJ(doc)) return alert('CNPJ inválido (use 14 dígitos numéricos)');
+  const id = DATA.users.length ? Math.max(...DATA.users.map(u=>u.id)) + 1 : 1;
+  const user = { id, name, email, password: pass, type, ...(type === 'company' ? { cnpj: doc } : { cpf: doc }), rating: null };
+  DATA.users.push(user);
+  saveData();
+  alert('Cadastro realizado com sucesso. Você já está logado.');
+  setUser(user);
+  setRoute('home');
+}
+
+/* ---------- INICIALIZAÇÃO E EVENTOS ---------- */
+document.querySelector('#mainNav')?.addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-route]');
+  if(btn) setRoute(btn.dataset.route);
+});
+document.getElementById('navLogin')?.addEventListener('click', ()=>{
+  if(state.user){ if(confirm('Deseja sair?')){ setUser(null); state.user=null; setRoute('about'); } return; }
+  setRoute('login');
+});
+byId('resetBtn')?.addEventListener('click', ()=> {
+  if(!confirm('Resetar dados do protótipo?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  loadData();
+  state.user = null;
+  setRoute('about');
+  render();
+});
+byId('exportBtn')?.addEventListener('click', ()=> {
+  try {
+    const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'insight_dump.json'; a.click();
+    setTimeout(()=> URL.revokeObjectURL(url), 1000);
+  } catch(e){
+    alert('Erro ao exportar os dados.');
+  }
+});
+
+/* logo upload persistence: somente se existir o input */
+const logoInput = byId('logoUpload');
+if(logoInput){
+  logoInput.addEventListener('change', (e)=>{
+    const f = e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ()=> {
+      const img = byId('siteLogo');
+      if(img) img.src = reader.result;
+      try { localStorage.setItem('insight_logo', reader.result); } catch(e){}
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+/* load saved state */
+(function init(){
+  loadData();
+  try{
+    const s = sessionStorage.getItem('insight_user');
+    if(s) setUser(JSON.parse(s));
+  } catch(e){}
+  const savedLogo = localStorage.getItem('insight_logo'); if(savedLogo && byId('siteLogo')) byId('siteLogo').src = savedLogo;
+  render();
+})();
+
+/* ---------- UTIL: escape básico para inserir textos em HTML (prevenir XSS na UI local) ---------- */
+function escapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"'`=\/]/g, function(s){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#96;','=':'&#61;'}[s]); });
+}
+</script>
+</body>
+</html>
