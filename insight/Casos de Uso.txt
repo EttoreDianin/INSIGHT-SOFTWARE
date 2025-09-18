@@ -1,0 +1,190 @@
+Caso de Uso 1: Cadastro de Freelancer
+
+Ator Principal: Freelancer
+Pré-condições: O usuário não possui conta cadastrada na plataforma.
+
+Fluxo Principal:
+
+1. O freelancer acessa a tela inicial do sistema e seleciona “Criar Conta”.
+2. O sistema exibe opções para cadastro via CPF (freelancer) ou CNPJ (empresa).
+3. O freelancer seleciona CPF e preenche dados pessoais obrigatórios (nome, CPF, e-mail, telefone, senha).
+4. O freelancer anexa documentos para verificação de identidade.
+5. O sistema valida os dados e confirma o cadastro.
+6. O sistema envia e-mail de confirmação e ativa a conta.
+
+
+
+Fluxo Alternativo: No passo 4, se o documento enviado estiver ilegível ou inválido, o sistema solicita novo envio antes da conclusão do cadastro.
+
+
+Pós-condições: Conta de freelancer criada e disponível para login.
+
+
+---
+
+Caso de Uso 2: Cadastro de Empresa
+
+Ator Principal: Representante da Empresa
+Pré-condições: O usuário não possui conta cadastrada na plataforma.
+
+Fluxo Principal:
+
+1. O representante acessa “Criar Conta” na tela inicial.
+2. O sistema exibe opções para CPF ou CNPJ.
+3. O representante seleciona CNPJ e preenche dados obrigatórios (razão social, CNPJ, e-mail, telefone, senha).
+4. O representante anexa documentos da empresa para verificação.
+5. O sistema valida e aprova o cadastro.
+6. O sistema envia confirmação e ativa a conta.
+
+
+
+Fluxo Alternativo: Caso os documentos não sejam validados, o sistema solicita reenvio antes da ativação.
+
+Pós-condições: Conta de empresa criada e pronta para publicação de serviços.
+
+
+---
+
+Caso de Uso 3: Publicação de Serviço pela Empresa
+
+Ator Principal: Empresa
+Pré-condições: A empresa está autenticada e com perfil ativo.
+
+Fluxo Principal:
+
+1. A empresa seleciona “Publicar Serviço” no painel.
+2. O sistema exibe formulário de criação de serviço.
+3. A empresa preenche título, descrição, valor sugerido, prazo e local (remoto/presencial).
+4. A empresa confirma a publicação.
+5. O sistema armazena e exibe o serviço na lista pública de oportunidades.
+
+
+
+Fluxo Alternativo: No passo 3, se faltar campo obrigatório, o sistema exibe mensagem e bloqueia a publicação até correção.
+
+Pós-condições: Serviço publicado e visível para freelancers.
+
+
+---
+
+Caso de Uso 4: Busca e Filtragem de Serviços
+
+Ator Principal: Freelancer
+Pré-condições: O freelancer está autenticado.
+
+Fluxo Principal:
+
+1. O freelancer acessa a área “Buscar Serviços”.
+2. O sistema exibe lista de oportunidades disponíveis.
+3. O freelancer aplica filtros (categoria, localização, valor, prazo, reputação da empresa).
+4. O sistema retorna apenas os serviços que atendem aos filtros.
+5. O freelancer seleciona um serviço para ver detalhes.
+
+
+
+Fluxo Alternativo: Caso nenhum serviço atenda aos filtros, o sistema exibe mensagem “Nenhum resultado encontrado” e sugere filtros mais amplos.
+
+Pós-condições: Serviços relevantes são exibidos para o freelancer.
+
+
+---
+
+Caso de Uso 5: Envio de Proposta pelo Freelancer
+
+Ator Principal: Freelancer
+Pré-condições: O freelancer está autenticado e visualizando detalhes de um serviço.
+
+Fluxo Principal:
+
+1. O freelancer clica em “Enviar Proposta”.
+2. O sistema exibe formulário para inserir valor, prazo e mensagem.
+3. O freelancer preenche e envia a proposta.
+4. O sistema armazena a proposta e envia notificação à empresa.
+
+
+
+Fluxo Alternativo: Caso falte valor ou prazo, o sistema exibe erro e impede envio até correção.
+
+Pós-condições: Proposta registrada e aguardando resposta da empresa.
+
+
+---
+
+Caso de Uso 6: Aceitar Proposta e Criar Contrato
+
+Ator Principal: Empresa
+Pré-condições: A empresa recebeu proposta de um freelancer.
+
+Fluxo Principal:
+
+1. A empresa acessa a lista de propostas recebidas.
+2. A empresa seleciona uma proposta e clica em “Aceitar”.
+3. O sistema exibe contrato padrão com opção de anexar cláusulas personalizadas.
+4. Ambas as partes revisam e assinam digitalmente o contrato.
+5. O sistema confirma a criação do contrato e solicita depósito do valor em escrow.
+
+
+
+Fluxo Alternativo: Caso uma das partes recuse cláusulas adicionais, o contrato retorna para negociação antes de ser assinado.
+
+Pós-condições: Contrato ativo e valor depositado em escrow.
+
+
+---
+
+Caso de Uso 7: Comunicação via Chat
+
+Ator Principal: Empresa e Freelancer
+Pré-condições: Contrato ativo entre empresa e freelancer.
+
+Fluxo Principal:
+
+1. Uma das partes acessa o chat interno do serviço.
+2. O sistema exibe histórico de mensagens e permite envio de novos textos e anexos.
+3. As mensagens são exibidas em tempo real para ambos.
+
+
+
+Fluxo Alternativo: Caso a conexão seja perdida, o sistema tenta reconexão automática e salva mensagens enviadas offline.
+
+Pós-condições: Comunicação registrada e associada ao contrato.
+
+
+---
+
+Caso de Uso 8: Entrega do Serviço    
+
+Ator Principal: Freelancer
+Pré-condições: Contrato ativo e prazo em andamento.
+
+Fluxo Principal:
+
+1. O freelancer conclui o trabalho e acessa o painel do contrato.
+2. O freelancer clica em “Entregar Serviço” e anexa arquivos/provas.
+3. O sistema notifica a empresa sobre a entrega.
+
+
+
+Fluxo Alternativo: Caso os arquivos excedam o limite de tamanho, o sistema solicita envio fracionado.
+
+Pós-condições: Serviço entregue e aguardando aceite da empresa.
+
+
+---
+
+Caso de Uso 9: Avaliação Pós-Serviço
+
+Ator Principal: Empresa e Freelancer
+Pré-condições: Serviço finalizado.
+
+Fluxo Principal:
+
+1. Ao encerrar o contrato, o sistema exibe formulário de avaliação.
+2. O usuário atribui nota (1 a 5 estrelas) e comentário.
+3. O sistema armazena avaliação e atualiza a reputação do perfil avaliado.
+
+
+Fluxo Alternativo: Caso o usuário não envie avaliação, o sistema envia lembrete até o prazo limite.
+
+Pós-condições: Avaliação registrada e visível publicamente no perfil.
+

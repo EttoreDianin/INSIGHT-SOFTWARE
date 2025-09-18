@@ -1,0 +1,75 @@
+
+
+1. Autenticação e contas
+
+1.1. Cadastro por CPF (freelancer) ou CNPJ (empresa) com validação de documentos;
+1.2. Login, recuperação/senha, dois fatores de autenticação (opcional);
+1.3. Perfil completo com nome, área de atuação, portfólio, disponibilidade, rating e dados financeiros.
+
+2. Vagas / Trabalhos
+
+2.1. Empresas publicam vagas/serviços com título, descrição, valor ou faixa, local (remoto ou presencial), prazo, anexos;
+2.2. Possibilidade de freelancers enviarem proposta com valor (negociável ou fixo) e mensagem personalizada;
+2.3. contratação imediata (“contrate agora”) ou seleção via propostas.
+
+3. Propostas e negociação
+
+3.1. Interface de negociação para empresa e freelancer alterarem valores, prazos, cláusulas;
+3.2. Anexo de contratos jurídicos por ambas as partes antes da aceitação;
+3.3. Histórico de conversas e negociação visível até fechamento.
+
+4. Pagamentos e escrows
+
+4.1. Serviço de escrow: valor depositado antecipadamente, liberado apenas ao final mediante aceite;
+4.2. Taxas fixas ou porcentagens cobradas ao contratante e/ou freelancer;
+4.3. Opções de retirada e pagamento via Pix, transferência bancária, cartão.
+
+5. Sistema de avaliações
+
+5.1. Após conclusão do trabalho, ambos podem avaliar em critérios (por exemplo: comunicação, qualidade, pontualidade);
+5.2. Avaliações aparecem no perfil e impactam visibilidade e poder de cobrança;
+5.3. Possibilidade de respostas ou recurso às avaliações.
+
+6. Regras e penalidades
+
+6.1. Termos de uso ao criar conta — obrigações mínimas;
+6.2. Penalidades: cancelamento unilateral, desistência sem motivo, falta de pagamento ou entrega;
+6.3. Suspensão, bloqueios, devolução automática, retenção de taxas em casos de infrações.
+
+7. Contratos
+
+7.1. Modelos padrões de contrato ao criar serviço/job;
+7.2. Opção de anexar contrato próprio (upload PDF/termos);
+7.3. Habilitar leitura obrigatória e aceite digital por ambas as partes.
+
+8. Monetização / planos
+
+8.1. Modelo gratuito com funcionalidades básicas;
+8.2. Planos pagos semanais/mensais para freelancers ou empresas, com benefícios: destaque em busca, isenção parcial de taxas, acesso a coaching, etc.;
+8.3. Anúncios integrados (por ex. empresas anunciantes, destaque de freelancers).
+
+9. Busca e visibilidade
+
+9.1. Filtros de busca por categoria, localização, faixa de preço, avaliação, disponibilidade;
+9.2. Ranking e algoritmos que priorizam perfis com avaliações mais altas, assinantes premium, aptidão para vaga.
+
+10. Comunicação e notificações
+
+10.1. Chat interno com mensagens e status de proposta;
+10.2. Notificações push e por email: novas vagas disponíveis, propostas, mudanças de status, pagamentos autorizados.
+
+11. Dashboard e relatórios
+
+11.1. Painel do freelancer: jobs ativos, saldo, histórico de trabalhos, avaliações;
+11.2. Painel da empresa: vagas, status das propostas, freelancers contratados, métricas de satisfação.
+
+12. Suporte e mediação
+
+12.1. Central de ajuda e tickets;
+12.2. Procedimento de resolução de disputas: prazos, envio de provas, decisão automatizada ou manual.
+
+13. Segurança e conformidade
+
+13.1. Proteção de dados (LGPD no Brasil), criptografia de dados sensíveis;
+13.2. Validação de identidade (e-KYC) e documentos fiscais (CPF/CNPJ);
+13.3. Logs de auditoria de atividades críticas (pagamentos, cancelamentos, denúncias).

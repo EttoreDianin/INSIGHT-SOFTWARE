@@ -1,0 +1,62 @@
+
+
+1. Desempenho
+	•	1.1 O sistema deve ser capaz de suportar até 10.000 usuários simultâneos sem queda perceptível de performance.
+	•	1.2 As páginas e ações principais (login, publicação de vagas, envio de propostas) devem carregar em até 2 segundos em redes móveis (4G ou superior).
+	•	1.3 O sistema deve permitir resposta rápida no chat interno com atualização em tempo real (ex: WebSocket ou polling otimizado).
+
+⸻
+
+2. Segurança
+	•	2.1 Todos os dados sensíveis (senha, documentos, contratos, pagamentos) devem ser criptografados em trânsito e em repouso.
+	•	2.2 O sistema deve estar em conformidade com a LGPD (Lei Geral de Proteção de Dados).
+	•	2.3 Os acessos devem contar com autenticação segura e suporte a 2FA (autenticação em dois fatores).
+	•	2.4 Logs de atividades críticas (login, pagamentos, denúncias) devem ser registrados e auditáveis.
+	•	2.5 O upload de arquivos (contratos, portfólios, etc.) deve ser protegido contra malwares e injeções maliciosas (com verificação de extensão, tamanho e conteúdo).
+
+⸻
+
+3. Escalabilidade
+	•	3.1 A arquitetura deve ser escalável horizontalmente, permitindo aumento da capacidade conforme o número de usuários crescer.
+	•	3.2 O sistema deve suportar múltiplos ambientes de execução (produção, testes, homologação) para facilitar crescimento e manutenção.
+	•	3.3 APIs e backend devem ser desenvolvidos com boas práticas para permitir uso futuro por apps de terceiros ou integrações externas (ex: contabilidade, ERP, etc.).
+
+⸻
+
+4. Disponibilidade
+	•	4.1 O sistema deve garantir alta disponibilidade (mínimo de 99,5%) ao longo do mês.
+	•	4.2 Deve haver mecanismos de failover e backup diário automático, para minimizar perdas em caso de falhas críticas.
+	•	4.3 Manutenções devem ser programadas e comunicadas com antecedência mínima de 24 horas aos usuários impactados.
+
+⸻
+
+5. Usabilidade
+	•	5.1 O sistema deve ser acessível e adaptado a dispositivos móveis e navegadores modernos (design responsivo).
+	•	5.2 Deve ser intuitivo, com processos simples para criação de conta, publicação de serviços e negociação.
+	•	5.3 Deve seguir boas práticas de acessibilidade (WCAG 2.1), com contraste adequado, navegação por teclado e leitores de tela.
+	•	5.4 O onboarding de novos usuários deve ter tutoriais ou tooltips explicativos para guiar primeiros passos.
+
+⸻
+
+6. Manutenibilidade
+	•	6.1 O sistema deve seguir padrões de codificação limpos e documentados, facilitando futuras atualizações e correções.
+	•	6.2 Toda funcionalidade nova deve ser lançada com testes automatizados (unitários e de integração).
+	•	6.3 A aplicação deve contar com monitoramento contínuo (logs, métricas de uso, alertas de erro) para facilitar detecção de falhas.
+
+⸻
+
+7. Compatibilidade
+	•	7.1 Deve funcionar corretamente nos principais navegadores (Chrome, Firefox, Safari, Edge), e versões recentes do Android/iOS.
+	•	7.2 O app mobile (caso exista) deve ser compatível com pelo menos as últimas 3 versões principais dos sistemas operacionais.
+
+⸻
+
+8. Internacionalização / Localização (opcional para expansão futura)
+	•	8.1 O sistema deve ser projetado com suporte para múltiplos idiomas e moedas, permitindo expansão internacional futura.
+	•	8.2 Os textos devem ser armazenados separadamente para facilitar tradução.
+
+⸻
+
+9. Legalidade / Compliance
+	•	9.1 O sistema deve permitir emissão de comprovantes fiscais ou integração com soluções externas para isso (como nota fiscal eletrônica).
+	•	9.2 Deve incluir Termos de Uso e Política de Privacidade acessíveis, obrigatórios para uso da plataforma

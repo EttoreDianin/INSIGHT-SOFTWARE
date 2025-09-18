@@ -1,0 +1,59 @@
+1. Banco de Dados – Entidades, Atributos e Relacionamentos
+
+O banco de dados deve conter as principais entidades do sistema, com seus respectivos atributos e relacionamentos.
+As principais entidades são:
+
+* Usuário: representa qualquer pessoa cadastrada na plataforma, seja freelancer ou empresa. Os atributos principais incluem nome, e-mail, senha, telefone, tipo de usuário (freelancer ou empresa) e status da conta.
+* Freelancer: extensão da entidade Usuário, incluindo CPF, área de atuação, portfólio, reputação, disponibilidade, dados bancários e status de verificação de documentos.
+* Empresa: também extensão da entidade Usuário, com CNPJ, razão social, ramo de atividade e status de verificação de documentos.
+* Serviço (ou Vaga): publicado por empresas, com título, descrição, valor sugerido, tipo de contrato, local de execução (remoto ou presencial), prazo e status.
+* Proposta: enviada por freelancers para serviços publicados, com valor proposto, prazo sugerido, mensagem personalizada, status da proposta e data de envio.
+* Contrato: gerado a partir de uma proposta aceita, contendo cláusulas adicionais, arquivo de contrato e status.
+* Avaliação: feita ao final de cada serviço, com nota, comentário, identificador do avaliador e avaliado, data e referência ao contrato.
+* ChatMensagem: registro de comunicações entre empresa e freelancer durante a execução do contrato, com texto, remetente, data e anexo opcional.
+* Plano de Assinatura: informações sobre planos pagos disponíveis, com nome, preço, benefícios e duração.
+* Assinatura Ativa: vincula um usuário a um plano, com datas de início, fim e status.
+* Notificação: mensagens geradas pelo sistema e enviadas ao usuário, com tipo, conteúdo, status de leitura e data.
+
+Os relacionamentos entre as entidades são definidos conforme a lógica do sistema. Por exemplo, um usuário pode ter um único perfil de freelancer ou empresa. Uma empresa pode publicar vários serviços. Um serviço pode receber várias propostas. Uma proposta aceita gera um contrato, que pode gerar um pagamento e permitir comunicação via chat. Todo contrato finalizado permite avaliações bilaterais.
+
+---
+
+2. Backend – Entidades e Operações a Serem Implementadas como Serviço
+
+No backend, será necessário implementar operações (endpoints) que permitam a manipulação das entidades definidas no banco de dados. As operações devem seguir o padrão CRUD (criação, leitura, atualização e remoção), além de incluir regras de negócio específicas da plataforma.
+As principais entidades e suas operações no backend são:
+
+* Usuário: criação de conta, login, recuperação de senha, atualização de dados pessoais, ativação/desativação de autenticação em dois fatores, e verificação de documentos.
+* Freelancer e Empresa: atualização de perfil profissional ou empresarial, envio de documentação e atualização de portfólio ou dados da empresa.
+* Serviço (vaga): criação, atualização, exclusão lógica (desativação), busca com filtros, e visualização detalhada por freelancers.
+* Proposta: envio de propostas, atualização ou cancelamento, leitura de propostas recebidas por empresas e gestão de status.
+* Contrato: criação de contratos a partir de propostas aceitas, assinatura digital, upload de cláusulas adicionais e alteração de status conforme andamento do trabalho.
+* Avaliação: envio de avaliações após a conclusão do contrato, leitura das avaliações recebidas e resposta a avaliações.
+* Chat: envio e recepção de mensagens em tempo real, com possibilidade de anexos, e listagem do histórico de mensagens por contrato.
+* Assinatura: compra e renovação de planos, ativação de benefícios, verificação de validade da assinatura e acesso ao histórico.
+* Notificação: criação automática de notificações, leitura e marcação como lida.
+
+Também será necessário implementar autenticação e autorização (incluindo perfis diferentes de acesso), middleware para proteção de rotas, criptografia de dados sensíveis, verificação de documentos com serviços externos, e registro de logs para auditoria de ações críticas.
+
+---
+
+3. Frontend – Entidades e Operações Visíveis na Interface
+
+No frontend, serão implementadas as interfaces de usuário para permitir a interação com o sistema por meio da web e, futuramente, por aplicativos móveis.
+As principais telas e funcionalidades incluem:
+
+* Autenticação e cadastro: telas para login, cadastro com CPF ou CNPJ e envio de documentos.
+* Perfil: edição de dados pessoais e profissionais (para freelancers) ou dados da empresa (para representantes empresariais), com exibição de avaliações, histórico de serviços e reputação.
+* Publicação de serviços: interface para empresas criarem e editarem serviços com título, descrição, valor, tipo de contrato, localização e anexos.
+* Busca e filtragem de serviços: interface para freelancers aplicarem filtros por categoria, localização, valor, reputação da empresa e prazo.
+* Detalhes de serviço: exibição completa de uma vaga com possibilidade de envio de proposta personalizada pelo freelancer.
+* Propostas recebidas e enviadas: tela para empresas visualizarem as propostas de freelancers, aceitarem ou recusarem, e para freelancers acompanharem o status das propostas enviadas.
+* Contratos: visualização de contrato, aceite digital, anexos de cláusulas personalizadas, e status do contrato (ativo, finalizado, cancelado).
+* Entrega do serviço: área onde o freelancer pode fazer a entrega oficial do trabalho e anexar os arquivos finais.
+* Avaliações: formulário para envio de avaliações e exibição de avaliações recebidas no perfil do usuário.
+* Chat: comunicação entre empresa e freelancer dentro de um serviço contratado, com envio de mensagens e arquivos.
+* Painel de controle (dashboard): para freelancers, exibição de serviços em andamento, histórico e saldo. Para empresas, acompanhamento de serviços publicados, propostas recebidas e contratos ativos.
+* Assinaturas: página de planos disponíveis, compra e ativação de plano, exibição de benefícios e histórico de assinatura.
+* Notificações: painel com notificações geradas pelo sistema e status de leitura.
+* Suporte e mediação: acesso a ajuda, abertura de tickets e visualização de resoluções de disputa quando houver problemas com contratos.
